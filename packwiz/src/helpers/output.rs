@@ -1,5 +1,4 @@
-use extism_convert::Json;
-use extism_pdk::{encoding, FromBytes};
+use extism_pdk::{encoding, FromBytes, Json};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, FromBytes)]
