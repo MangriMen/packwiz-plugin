@@ -2,7 +2,7 @@ use extism_pdk::{plugin_fn, FnResult};
 
 use crate::{
     helpers::{log, LogLevel},
-    models::ImportConfig,
+    models::{ImportConfig, PluginEvent},
 };
 
 #[plugin_fn]
@@ -25,4 +25,14 @@ pub fn get_import_config() -> FnResult<ImportConfig> {
 #[plugin_fn]
 pub fn import(path: String) -> FnResult<()> {
     crate::api::import(&path)
+}
+
+#[plugin_fn]
+pub fn update(instance_id: String) -> FnResult<()> {
+    crate::api::update(&instance_id)
+}
+
+#[plugin_fn]
+pub fn handle_event(event: PluginEvent) -> FnResult<()> {
+    crate::api::handle_event(&event)
 }

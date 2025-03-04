@@ -3,7 +3,7 @@ use extism_pdk::FnResult;
 use crate::{
     config::host,
     helpers::{log, packwiz::get_pack_from_path_or_url, LogLevel},
-    models::{ImportConfig, ModLoader, PackVersions, PackwizPack, PackwizSettings},
+    models::{ImportConfig, ModLoader, PackInfo, PackVersions, PackwizPack, PackwizSettings},
 };
 
 lazy_static::lazy_static! {
@@ -39,6 +39,8 @@ fn extract_mod_loader(version: &PackVersions) -> crate::Result<(ModLoader, Optio
 }
 
 fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Result<String> {
+    let plugin_id = unsafe { host::get_id() }.map_err(|_| "Failed to get plugin id")?;
+
     let (mod_loader, mod_loader_version) = extract_mod_loader(&pack.versions)?;
 
     let instance_id = unsafe {
@@ -49,6 +51,11 @@ fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Resu
             mod_loader_version,
             None,
             Some(0),
+            Some(PackInfo {
+                pack_type: plugin_id,
+                pack_version: pack.version.clone(),
+                can_update: true,
+            }),
         )
     }
     .map_err(|_| "Failed to create instance")?;
@@ -57,6 +64,7 @@ fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Resu
         &instance_id,
         &PackwizSettings {
             pack_path: pack_path.to_string(),
+            update_on_launch: true,
         },
     )?;
 
@@ -70,7 +78,7 @@ pub fn import(path_or_url: &str) -> FnResult<()> {
 
     let instance_id = create_instance_from_pack(&pack, path_or_url)?;
 
-    crate::api::update_pack(&instance_id)?;
+    crate::api::update(&instance_id)?;
 
     Ok(())
 }

@@ -29,7 +29,7 @@ pub fn update_pack_base(instance_id: &str, settings: &PackwizSettings) -> crate:
     Ok(())
 }
 
-pub fn update_pack(instance_id: &str) -> FnResult<()> {
+pub fn update(instance_id: &str) -> FnResult<()> {
     crate::helpers::preload_resources(instance_id)?;
 
     let instance_plugin_folder = unsafe { host::instance_plugin_get_dir(instance_id.to_string()) }
