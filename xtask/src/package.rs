@@ -15,7 +15,7 @@ struct CargoMetadata {
 struct Package {
     name: String,
     description: Option<String>,
-    version: String,
+    version: semver::Version,
     authors: Option<Vec<String>>,
     license: Option<String>,
     metadata: PackageMetadata,
@@ -24,8 +24,9 @@ struct Package {
 #[derive(Deserialize)]
 struct PackageMetadata {
     name: String,
-    api_version: String,
+    api_version: semver::VersionReq,
     allowed_hosts: Option<Vec<String>>,
+    allowed_paths: Option<Vec<PathMapping>>,
 }
 
 pub fn bundle() -> (String, PathBuf) {
@@ -84,55 +85,87 @@ pub fn package() {
     println!("Plugin packaged in {:?}", zip_path);
 }
 
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
-pub struct PluginMetadata {
-    pub plugin: PluginInfo,
-    pub wasm: WasmInfo,
-    pub config: ConfigInfo,
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PluginManifest {
+    pub metadata: PluginMetadata,
+    pub runtime: RuntimeConfig,
+    pub load: LoadConfig,
+    pub api: ApiConfig,
 }
 
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
-pub struct PluginInfo {
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PluginMetadata {
     pub id: String,
     pub name: String,
-    pub version: String,
+    pub version: semver::Version,
     pub description: Option<String>,
-    pub authors: Option<Vec<String>>,
+    pub authors: Vec<String>,
     pub license: Option<String>,
 }
 
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
-pub struct WasmInfo {
-    pub file: String,
-    pub allowed_hosts: Option<Vec<String>>,
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct RuntimeConfig {
+    #[serde(default)]
+    pub allowed_hosts: Vec<String>,
+
+    #[serde(default)]
+    pub allowed_paths: Vec<PathMapping>,
 }
 
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
-pub struct ConfigInfo {
-    pub api_version: String,
+pub type PathMapping = (String, PathBuf);
+
+#[derive(Debug, Hash, Eq, PartialEq)]
+pub enum LoadConfigType {
+    Extism,
+    Native,
 }
 
-fn generate_plugin_metadata(cargo_toml_path: &Path) -> PluginMetadata {
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum LoadConfig {
+    Extism {
+        file: PathBuf,
+        #[serde(default)]
+        memory_limit: Option<usize>,
+    },
+    Native {
+        lib_path: PathBuf,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ApiConfig {
+    pub version: semver::VersionReq,
+    #[serde(default)]
+    pub features: Vec<String>,
+}
+
+fn generate_plugin_metadata(cargo_toml_path: &Path) -> PluginManifest {
     let cargo_toml_content = fs::read_to_string(cargo_toml_path).expect("Can't read Cargo.toml");
 
     let cargo: CargoMetadata =
         toml::from_str(&cargo_toml_content).expect("Failed to parse Cargo.toml");
 
-    PluginMetadata {
-        plugin: PluginInfo {
+    PluginManifest {
+        metadata: PluginMetadata {
             id: cargo.package.name.clone(),
             name: cargo.package.metadata.name,
             version: cargo.package.version,
             description: cargo.package.description,
-            authors: cargo.package.authors,
+            authors: cargo.package.authors.unwrap_or_default(),
             license: cargo.package.license,
         },
-        wasm: WasmInfo {
-            file: format!("{}.wasm", cargo.package.name),
-            allowed_hosts: cargo.package.metadata.allowed_hosts,
+        runtime: RuntimeConfig {
+            allowed_hosts: cargo.package.metadata.allowed_hosts.unwrap_or_default(),
+            allowed_paths: cargo.package.metadata.allowed_paths.unwrap_or_default(),
         },
-        config: ConfigInfo {
-            api_version: cargo.package.metadata.api_version,
+        load: LoadConfig::Extism {
+            file: PathBuf::from(format!("{}.wasm", cargo.package.name)),
+            memory_limit: None,
+        },
+        api: ApiConfig {
+            version: cargo.package.metadata.api_version,
+            features: Vec::default(),
         },
     }
 }
