@@ -1,0 +1,10 @@
+{
+  "importers": [
+    {
+      "id": "packwiz",
+      "name": "Packwiz",
+      "description": "Import from packwiz modpacks",
+      "icon": "packwiz.svg"
+    }
+  ]
+}

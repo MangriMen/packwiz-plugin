@@ -15,18 +15,28 @@ pub fn bundle(
     let bundle_dir = target_dir.join("bundle");
     std::fs::create_dir_all(&bundle_dir).unwrap();
 
-    let wasm_path = target_dir.join(plugin_name).with_extension("wasm");
-    fs::copy(&wasm_path, bundle_dir.join(wasm_path.file_name().unwrap())).unwrap();
+    let wasm_src = target_dir.join(plugin_name).with_extension("wasm");
+    let wasm_dst = bundle_dir.join(wasm_src.file_name().unwrap());
+    fs::copy(&wasm_src, wasm_dst).unwrap();
 
     let plugin_manifest = generate_plugin_manifest(metadata);
+    let manifest_dst = bundle_dir.join("manifest.json");
     fs::write(
-        bundle_dir.join("manifest.json"),
+        manifest_dst,
         serde_json::to_string_pretty(&plugin_manifest).unwrap(),
     )
     .unwrap();
 
-    if Path::new("icon.png").exists() {
-        fs::copy("icon.png", bundle_dir.join("icon.png")).unwrap();
+    let project_dir = Path::new(plugin_name);
+
+    let plugin_capabilities_src = project_dir.join("capabilities.json");
+    let plugin_capabilities_dst = bundle_dir.join("capabilities.json");
+    fs::copy(plugin_capabilities_src, plugin_capabilities_dst).unwrap();
+
+    let icon_src = project_dir.join("icon.png");
+    if icon_src.exists() {
+        let icon_dst = bundle_dir.join("icon.png");
+        fs::copy(icon_src, icon_dst).unwrap();
     }
 
     bundle_dir
