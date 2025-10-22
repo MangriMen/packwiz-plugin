@@ -5,7 +5,7 @@ use crate::features::{
     cargo::CargoMetadata,
 };
 
-pub fn generate_plugin_metadata(meta: &CargoMetadata) -> PluginManifest {
+pub fn generate_plugin_manifest(meta: &CargoMetadata) -> PluginManifest {
     PluginManifest {
         metadata: PluginMetadata {
             id: meta.package.name.clone(),

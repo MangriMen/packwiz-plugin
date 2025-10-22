@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct PluginManifest {
     pub metadata: PluginMetadata,
     pub runtime: RuntimeConfig,
@@ -11,6 +12,7 @@ pub struct PluginManifest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct PluginMetadata {
     pub id: String,
     pub name: String,
@@ -21,6 +23,7 @@ pub struct PluginMetadata {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct RuntimeConfig {
     #[serde(default)]
     pub allowed_hosts: Vec<String>,
@@ -29,28 +32,30 @@ pub struct RuntimeConfig {
     pub allowed_paths: Vec<PathMapping>,
 }
 
-pub type PathMapping = (String, PathBuf);
+pub type PathMapping = (String, PathBuf); // (path on disk, plugin path)
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Hash, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum LoadConfigType {
     Extism,
     Native,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum LoadConfig {
+    #[serde(rename_all = "camelCase")]
     Extism {
         file: PathBuf,
         #[serde(default)]
         memory_limit: Option<usize>,
     },
-    Native {
-        lib_path: PathBuf,
-    },
+    #[serde(rename_all = "camelCase")]
+    Native { lib_path: PathBuf },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct ApiConfig {
     pub version: semver::VersionReq,
     #[serde(default)]

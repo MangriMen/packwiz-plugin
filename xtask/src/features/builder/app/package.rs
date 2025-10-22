@@ -14,11 +14,11 @@ pub fn package(
 ) -> PathBuf {
     let package_dir = get_package_dir(TARGET, profile);
 
-    bundle(plugin_name, working_dir, profile, metadata);
+    let bundle_dir = bundle(plugin_name, working_dir, profile, metadata);
 
     let zip_path = package_dir.join(plugin_name).with_extension("zip");
 
-    pack_to_zip(&package_dir, &get_files_to_pack(plugin_name), &zip_path);
+    pack_to_zip(&bundle_dir, &get_files_to_pack(plugin_name), &zip_path);
 
     zip_path
 }
@@ -26,7 +26,7 @@ pub fn package(
 fn get_files_to_pack(plugin_name: &str) -> Vec<String> {
     [
         format!("{}.wasm", &plugin_name),
-        "plugin.toml".to_owned(),
+        "manifest.json".to_owned(),
         "icon.png".to_owned(),
     ]
     .to_vec()
