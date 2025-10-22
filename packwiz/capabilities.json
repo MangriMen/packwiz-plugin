@@ -4,7 +4,8 @@
       "id": "packwiz",
       "name": "Packwiz",
       "description": "Import from packwiz modpacks",
-      "icon": "packwiz.svg"
+      "icon": "packwiz.svg",
+      "fieldLabel": "Packwiz pack URL or file"
     }
   ]
 }

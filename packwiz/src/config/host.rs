@@ -2,7 +2,7 @@ use extism_pdk::host_fn;
 
 use crate::{
     helpers::SerializableOutput,
-    models::{Java, PackInfo, SerializableCommand},
+    models::{Java, NewInstance, SerializableCommand},
 };
 
 #[host_fn]
@@ -13,15 +13,7 @@ extern "ExtismHost" {
     pub fn instance_get_dir(instance_id: String) -> String;
     pub fn instance_plugin_get_dir(instance_id: String) -> String;
 
-    pub fn instance_create(
-        name: String,
-        game_version: String,
-        mod_loader: String,
-        loader_version: Option<String>,
-        icon_path: Option<String>,
-        skip_install_instance: Option<i64>,
-        pack_info: Option<PackInfo>,
-    ) -> String;
+    pub fn instance_create(new_instance: NewInstance) -> String;
 
     pub fn get_or_download_java(version: u32) -> Java;
 

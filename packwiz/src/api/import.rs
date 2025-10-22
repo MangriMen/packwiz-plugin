@@ -3,22 +3,11 @@ use extism_pdk::FnResult;
 use crate::{
     config::host,
     helpers::{log, packwiz::get_pack_from_path_or_url, LogLevel},
-    models::{ImportConfig, ModLoader, PackInfo, PackVersions, PackwizPack, PackwizSettings},
+    models::{
+        LoaderVersionPreference, ModLoader, NewInstance, PackInfo, PackVersions, PackwizPack,
+        PackwizSettings, PluginImportInstance,
+    },
 };
-
-lazy_static::lazy_static! {
-    static ref DEFAULT_IMPORT_CONFIG: ImportConfig = ImportConfig {
-        pack_type: "packwiz".to_string(),
-        title: "Packwiz".to_string(),
-        field_label: "Packwiz pack URL or file".to_string(),
-        file_name: "Packwiz modpack".to_string(),
-        file_extensions: vec!["toml".to_string()],
-    };
-}
-
-pub fn get_import_config() -> ImportConfig {
-    DEFAULT_IMPORT_CONFIG.clone()
-}
 
 fn extract_mod_loader(version: &PackVersions) -> crate::Result<(ModLoader, Option<String>)> {
     match (
@@ -39,24 +28,22 @@ fn extract_mod_loader(version: &PackVersions) -> crate::Result<(ModLoader, Optio
 }
 
 fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Result<String> {
-    let plugin_id = unsafe { host::get_id() }.map_err(|_| "Failed to get plugin id")?;
-
     let (mod_loader, mod_loader_version) = extract_mod_loader(&pack.versions)?;
 
     let instance_id = unsafe {
-        host::instance_create(
-            pack.name.to_string(),
-            pack.versions.minecraft.to_string(),
-            mod_loader.as_str().to_string(),
-            mod_loader_version,
-            None,
-            Some(0),
-            Some(PackInfo {
-                pack_type: plugin_id,
+        host::instance_create(NewInstance {
+            name: pack.name.to_owned(),
+            game_version: pack.versions.minecraft.to_owned(),
+            mod_loader,
+            loader_version: mod_loader_version.map(LoaderVersionPreference::Exact),
+            icon_path: None,
+            skip_install_instance: None,
+            pack_info: Some(PackInfo {
+                pack_type: "packwiz".to_owned(),
                 pack_version: pack.version.clone(),
                 can_update: true,
             }),
-        )
+        })
     }
     .map_err(|_| "Failed to create instance")?;
 
@@ -71,14 +58,27 @@ fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Resu
     Ok(instance_id)
 }
 
-pub fn import(path_or_url: &str) -> FnResult<()> {
-    let pack = get_pack_from_path_or_url(path_or_url)?;
+pub fn import(import_instance: &PluginImportInstance) -> FnResult<()> {
+    match import_instance.importer_id.as_ref() {
+        "packwiz" => {
+            let path = &import_instance.path;
 
-    log(LogLevel::Debug, format!("{:?}", pack));
+            let pack = get_pack_from_path_or_url(path)?;
 
-    let instance_id = create_instance_from_pack(&pack, path_or_url)?;
+            log(LogLevel::Debug, format!("{:?}", pack));
 
-    crate::api::update(&instance_id)?;
+            let instance_id = create_instance_from_pack(&pack, path)?;
+
+            crate::api::update(&instance_id)?;
+        }
+        _ => {
+            return Err(crate::Error(format!(
+                "Unsupported importer: {}",
+                import_instance.importer_id
+            ))
+            .into())
+        }
+    }
 
     Ok(())
 }

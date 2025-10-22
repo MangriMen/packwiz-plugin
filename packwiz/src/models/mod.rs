@@ -1,17 +1,21 @@
 pub mod command;
-pub mod import_config;
 pub mod java;
+pub mod loader_version;
 pub mod mod_loader;
+pub mod new_instance;
 pub mod pack_info;
 pub mod packwiz;
 pub mod packwiz_settings;
+pub mod plugin_dto;
 pub mod plugin_event;
 
 pub use command::*;
-pub use import_config::*;
 pub use java::*;
+pub use loader_version::*;
 pub use mod_loader::*;
+pub use new_instance::*;
 pub use pack_info::*;
 pub use packwiz::*;
 pub use packwiz_settings::*;
+pub use plugin_dto::*;
 pub use plugin_event::*;
