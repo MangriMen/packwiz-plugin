@@ -30,32 +30,50 @@ fn extract_mod_loader(version: &PackVersions) -> crate::Result<(ModLoader, Optio
 fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Result<String> {
     let (mod_loader, mod_loader_version) = extract_mod_loader(&pack.versions)?;
 
-    let instance_id = unsafe {
-        host::instance_create(NewInstance {
-            name: pack.name.to_owned(),
-            game_version: pack.versions.minecraft.to_owned(),
-            mod_loader,
-            loader_version: mod_loader_version.map(LoaderVersionPreference::Exact),
-            icon_path: None,
-            skip_install_instance: None,
-            pack_info: Some(PackInfo {
-                pack_type: "packwiz".to_owned(),
-                pack_version: pack.version.clone(),
-                can_update: true,
-            }),
-        })
+    log(
+        LogLevel::Debug,
+        format!(
+            "Creating instance with mod_loader: {:?} version: {:?}",
+            mod_loader, mod_loader_version
+        ),
+    );
+
+    let new_instance = NewInstance {
+        name: pack.name.to_owned(),
+        game_version: pack.versions.minecraft.to_owned(),
+        mod_loader,
+        loader_version: mod_loader_version.map(LoaderVersionPreference::Exact),
+        icon_path: None,
+        skip_install_instance: None,
+        pack_info: Some(PackInfo {
+            pack_type: "packwiz".to_owned(),
+            pack_version: pack.version.clone(),
+            can_update: true,
+        }),
+    };
+
+    log(LogLevel::Trace, format!("New instance: {:?}", new_instance));
+
+    let instance_id = unsafe { host::instance_create(new_instance) };
+
+    match instance_id {
+        Ok(instance_id) => {
+            crate::api::settings::save_to_instance(
+                &instance_id,
+                &PackwizSettings {
+                    pack_path: pack_path.to_string(),
+                    update_on_launch: true,
+                },
+            )?;
+
+            Ok(instance_id)
+        }
+        Err(e) => {
+            let error_msg = e.to_string();
+            log(LogLevel::Error, error_msg.clone());
+            Err(crate::Error(error_msg))
+        }
     }
-    .map_err(|_| "Failed to create instance")?;
-
-    crate::api::settings::save_to_instance(
-        &instance_id,
-        &PackwizSettings {
-            pack_path: pack_path.to_string(),
-            update_on_launch: true,
-        },
-    )?;
-
-    Ok(instance_id)
 }
 
 pub fn import(import_instance: &PluginImportInstance) -> FnResult<()> {
@@ -64,19 +82,22 @@ pub fn import(import_instance: &PluginImportInstance) -> FnResult<()> {
             let path = &import_instance.path;
 
             let pack = get_pack_from_path_or_url(path)?;
-
-            log(LogLevel::Debug, format!("{:?}", pack));
+            log(LogLevel::Debug, format!("Pack loaded: {}", pack.name));
+            log(LogLevel::Trace, format!("Pack: {:?}", pack));
 
             let instance_id = create_instance_from_pack(&pack, path)?;
+            log(
+                LogLevel::Debug,
+                format!("Instance created: {}", instance_id),
+            );
 
             crate::api::update(&instance_id)?;
+            log(LogLevel::Debug, "Import completed successfully".to_owned());
         }
         _ => {
-            return Err(crate::Error(format!(
-                "Unsupported importer: {}",
-                import_instance.importer_id
-            ))
-            .into())
+            let error_msg = format!("Unsupported importer: {}", import_instance.importer_id);
+            log(LogLevel::Error, error_msg.clone());
+            return Err(crate::Error(error_msg).into());
         }
     }
 

@@ -15,7 +15,7 @@ extern "ExtismHost" {
 
     pub fn instance_create(new_instance: NewInstance) -> String;
 
-    pub fn get_or_download_java(version: u32) -> Java;
+    pub fn get_java(version: u32) -> Java;
 
     pub fn run_command(command: SerializableCommand) -> SerializableOutput;
 }

@@ -10,8 +10,8 @@ pub fn get_command_to_update_pack(
     settings: &PackwizSettings,
 ) -> crate::Result<Command> {
     const JAVA_VERSION: u32 = 8;
-    let java = unsafe { host::get_or_download_java(JAVA_VERSION) }
-        .map_err(|_| "Failed to get or download java")?;
+    let java =
+        unsafe { host::get_java(JAVA_VERSION) }.map_err(|_| "Failed to get or download java")?;
 
     let cache_dir = Path::new("/cache");
 
