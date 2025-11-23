@@ -46,9 +46,8 @@ fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Resu
         icon_path: None,
         skip_install_instance: None,
         pack_info: Some(PackInfo {
-            pack_type: "packwiz".to_owned(),
-            pack_version: pack.version.clone(),
-            can_update: true,
+            modpack_id: "packwiz".to_owned(),
+            version: pack.version.clone(),
         }),
     };
 

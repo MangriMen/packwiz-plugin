@@ -2,6 +2,7 @@ use std::{path::Path, process::Command};
 
 use crate::{
     config::{host, PACKWIZ_INSTALLER_BOOTSTRAP_FILE_NAME, PACKWIZ_INSTALLER_FILE_NAME},
+    helpers::{log, LogLevel},
     models::PackwizSettings,
 };
 
@@ -10,8 +11,14 @@ pub fn get_command_to_update_pack(
     settings: &PackwizSettings,
 ) -> crate::Result<Command> {
     const JAVA_VERSION: u32 = 8;
-    let java =
-        unsafe { host::get_java(JAVA_VERSION) }.map_err(|_| "Failed to get or download java")?;
+    log(LogLevel::Debug, "Try to get java path".to_string());
+
+    let java = match unsafe { host::get_java(JAVA_VERSION) }?.to_result() {
+        Ok(java) => Ok(java),
+        Err(_) => unsafe { host::install_java(JAVA_VERSION) }?.to_result(),
+    }?;
+
+    log(LogLevel::Debug, format!("Java path: {}", &java.path));
 
     let cache_dir = Path::new("/cache");
 

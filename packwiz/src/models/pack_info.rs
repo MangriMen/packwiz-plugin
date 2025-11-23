@@ -4,7 +4,6 @@ use extism_pdk::{encoding, Json, ToBytes};
 #[encoding(Json)]
 #[serde(rename_all = "camelCase")]
 pub struct PackInfo {
-    pub pack_type: String,
-    pub pack_version: String,
-    pub can_update: bool,
+    pub modpack_id: String,
+    pub version: String,
 }
