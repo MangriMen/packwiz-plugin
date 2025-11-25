@@ -27,7 +27,8 @@ pub fn get_command_to_update_pack(
         cache_dir.join(PACKWIZ_INSTALLER_BOOTSTRAP_FILE_NAME),
     );
 
-    let instance_folder = unsafe { host::instance_get_dir(instance_id.to_string()) }
+    let instance_folder = unsafe { host::instance_get_dir(instance_id.to_string()) }?
+        .to_result()
         .map_err(|_| "Failed to get instance directory")?;
     let instance_folder = Path::new(&instance_folder);
 

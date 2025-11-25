@@ -80,7 +80,8 @@ pub fn ensure_resource_in_instance_directory(
 pub fn preload_resources(instance_id: &str) -> crate::Result<()> {
     ensure_download_all_redistributable()?;
 
-    let instance_plugin_folder = unsafe { host::instance_get_dir(instance_id.to_string()) }
+    let instance_plugin_folder = unsafe { host::instance_get_dir(instance_id.to_string()) }?
+        .to_result()
         .map_err(|_| "Failed to get instance directory".to_owned())?;
     let instance_folder = Path::new(&instance_plugin_folder);
 

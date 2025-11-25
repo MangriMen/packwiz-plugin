@@ -1,4 +1,4 @@
-use crate::serializable_error::SerializableError;
+use serr::SerializedError;
 
 #[derive(Debug)]
 pub struct Error(pub String);
@@ -27,8 +27,8 @@ impl From<String> for Error {
     }
 }
 
-impl From<SerializableError> for Error {
-    fn from(value: SerializableError) -> Self {
+impl From<SerializedError> for Error {
+    fn from(value: SerializedError) -> Self {
         Error(value.message)
     }
 }

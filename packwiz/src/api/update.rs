@@ -32,7 +32,8 @@ pub fn update_pack_base(instance_id: &str, settings: &PackwizSettings) -> crate:
 pub fn update(instance_id: &str) -> FnResult<()> {
     crate::helpers::preload_resources(instance_id)?;
 
-    let instance_plugin_folder = unsafe { host::instance_plugin_get_dir(instance_id.to_string()) }
+    let instance_plugin_folder = unsafe { host::instance_plugin_get_dir(instance_id.to_string()) }?
+        .to_result()
         .map_err(|_| crate::Error("Failed to get instance directory".to_owned()))?;
 
     let instance_packwiz_settings = crate::api::settings::get_from_path(

@@ -53,7 +53,7 @@ fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Resu
 
     log(LogLevel::Trace, format!("New instance: {:?}", new_instance));
 
-    let instance_id = unsafe { host::instance_create(new_instance) };
+    let instance_id = unsafe { host::instance_create(new_instance) }?.to_result();
 
     match instance_id {
         Ok(instance_id) => {
@@ -68,7 +68,7 @@ fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Resu
             Ok(instance_id)
         }
         Err(e) => {
-            let error_msg = e.to_string();
+            let error_msg = e.message;
             log(LogLevel::Error, error_msg.clone());
             Err(crate::Error(error_msg))
         }
