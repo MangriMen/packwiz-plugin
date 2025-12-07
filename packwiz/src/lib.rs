@@ -1,9 +1,6 @@
 pub mod api;
-pub mod config;
-pub mod error;
-pub mod helpers;
-pub mod host_result;
-pub mod models;
-pub mod plugin;
+pub mod core;
+pub mod features;
+pub mod shared;
 
-pub use error::*;
+pub use core::domain::{Error, Result};
