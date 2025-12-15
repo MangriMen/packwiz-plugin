@@ -1,13 +1,14 @@
+use aether_core_plugin_api::v0::{LoaderVersionPreferenceDto, NewInstanceDto, PackInfoDto};
+
 use crate::features::{
-    host::{log, LogLevel},
-    instance::{
-        extract_mod_loader, instance_create, LoaderVersionPreference, NewInstance, PackInfo,
-        PackwizSettings,
-    },
+    host::{self, log, LogLevel},
+    instance::{extract_mod_loader, instance_create, PackwizSettings},
     packwiz::PackwizPack,
 };
 
 pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Result<String> {
+    let plugin_id = host::get_id()?;
+
     let (mod_loader, mod_loader_version) = extract_mod_loader(&pack.versions)?;
 
     log(
@@ -18,14 +19,15 @@ pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::
         ),
     );
 
-    let new_instance = NewInstance {
+    let new_instance = NewInstanceDto {
         name: pack.name.to_owned(),
         game_version: pack.versions.minecraft.to_owned(),
         mod_loader,
-        loader_version: mod_loader_version.map(LoaderVersionPreference::Exact),
+        loader_version: mod_loader_version.map(LoaderVersionPreferenceDto::Exact),
         icon_path: None,
         skip_install_instance: None,
-        pack_info: Some(PackInfo {
+        pack_info: Some(PackInfoDto {
+            plugin_id,
             modpack_id: "packwiz".to_owned(),
             version: pack.version.clone(),
         }),

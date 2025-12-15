@@ -1,17 +1,14 @@
 use std::path::Path;
 
-use extism_pdk::Msgpack;
+use aether_core_plugin_api::v0::CommandDto;
 
-use crate::{
-    features::{
-        host::{self, log, LogLevel},
-        instance::{
-            disable_contents, enable_contents, instance_plugin_get_dir, list_content,
-            PackwizSettings,
-        },
-        packwiz,
+use crate::features::{
+    host::{self, log, LogLevel},
+    instance::{
+        disable_contents, enable_contents, instance_plugin_get_dir, list_content, CommandDtoExt,
+        PackwizSettings,
     },
-    shared::serializable_command::SerializableCommand,
+    packwiz,
 };
 
 pub fn update(instance_id: String) -> crate::Result<()> {
@@ -35,22 +32,19 @@ pub fn update_pack_base(instance_id: &str, settings: &PackwizSettings) -> crate:
     );
 
     let command = packwiz::get_command_to_update_pack(instance_id, settings)
-        .map(|command| SerializableCommand::from_command(&command))?;
+        .map(|command| CommandDto::from_command(&command))?;
 
     let disabled_contents_paths = get_disabled_contents_paths(instance_id)?;
     let should_temporary_enable_contents = !disabled_contents_paths.is_empty();
 
     if should_temporary_enable_contents {
-        enable_contents(
-            instance_id.to_owned(),
-            Msgpack(disabled_contents_paths.clone()),
-        )?;
+        enable_contents(instance_id.to_owned(), disabled_contents_paths.clone())?;
     }
 
     host::run_command(command.clone())?;
 
     if should_temporary_enable_contents {
-        disable_contents(instance_id.to_owned(), Msgpack(disabled_contents_paths))?
+        disable_contents(instance_id.to_owned(), disabled_contents_paths)?
     }
 
     log(

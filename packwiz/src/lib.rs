@@ -1,6 +1,5 @@
 pub mod api;
 pub mod core;
 pub mod features;
-pub mod shared;
 
 pub use core::domain::{Error, Result};
