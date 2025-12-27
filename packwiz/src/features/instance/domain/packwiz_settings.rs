@@ -1,6 +1,8 @@
 use std::path::Path;
 
-#[derive(serde::Serialize, serde::Deserialize)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PackwizSettings {
     pub pack_path: String,
     pub update_on_launch: bool,

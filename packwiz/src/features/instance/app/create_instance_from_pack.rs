@@ -39,13 +39,15 @@ pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::
 
     match instance_id {
         Ok(instance_id) => {
-            crate::api::settings::save_to_instance(
-                &instance_id,
-                &PackwizSettings {
-                    pack_path: pack_path.to_string(),
-                    update_on_launch: true,
-                },
-            )?;
+            let pack_settings = PackwizSettings {
+                pack_path: pack_path.to_string(),
+                update_on_launch: true,
+            };
+            crate::api::settings::save_to_instance(&instance_id, &pack_settings)?;
+            log(
+                LogLevel::Debug,
+                format!("Pack settings saved: {:?}", pack_settings),
+            );
 
             Ok(instance_id)
         }

@@ -27,5 +27,6 @@ url = "2.5.4"
 serr = { git = 'https://github.com/MangriMen/serr.git', version = "0.2.0", features = [
   "derive",
 ] }
+path-slash = "0.2.1"
 
 aether-core-plugin-api = { git = "https://github.com/MangriMen/aether-core.git", version = "0.1.0" }

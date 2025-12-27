@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use extism_pdk::{http, HttpRequest};
+use path_slash::PathBufExt;
 use url::Url;
 
 use crate::features::packwiz::PackwizPack;
@@ -8,6 +9,7 @@ use crate::features::packwiz::PackwizPack;
 pub fn get_pack_from_path_or_url(path_or_url: &str) -> crate::Result<PackwizPack> {
     let data = match get_path_type(path_or_url) {
         PathType::Path(path) => {
+            let path = path.to_slash_lossy().to_string();
             &std::fs::read(&path).map_err(|_| format!("Failed to read pack from {:?}", &path))?
         }
         PathType::Url(url) => {
