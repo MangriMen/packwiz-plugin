@@ -52,7 +52,7 @@ pub fn ensure_download_all_redistributable() -> crate::Result<()> {
 
         if let Some(url) = REDISTRIBUTABLE_LINKS.get(key) {
             if let Err(e) = download_redistributable(url, &path_to_redistributable, key) {
-                log(LogLevel::Debug, e.0);
+                log(LogLevel::Debug, e.to_string());
                 continue;
             }
         } else {
@@ -81,7 +81,8 @@ pub fn ensure_resource_in_instance_directory(
 pub fn preload_resources(instance_id: &str) -> crate::Result<()> {
     ensure_download_all_redistributable()?;
 
-    let instance_plugin_folder = instance::instance_get_dir(instance_id.to_string())?;
+    let instance_plugin_folder =
+        instance::instance_get_dir(instance_id.to_string()).into_result()?;
     let instance_folder = Path::new(&instance_plugin_folder);
 
     ensure_resource_in_instance_directory(instance_folder, PACKWIZ_INSTALLER_FILE_NAME)?;

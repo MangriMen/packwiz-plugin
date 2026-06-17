@@ -15,7 +15,11 @@ pub fn update(instance_id: String) -> crate::Result<()> {
     packwiz::preload_resources(&instance_id)?;
 
     let instance_plugin_folder = instance_plugin_get_dir(instance_id.clone())
-        .map_err(|_| crate::Error("Failed to get instance directory".to_owned()))?;
+        .into_result()
+        .map_err(|e| {
+            log(LogLevel::Error, format!("{e:?}"));
+            crate::Error::Custom("Failed to get instance directory".to_owned())
+        })?;
 
     let packwiz_path = Path::new(&instance_plugin_folder).join("packwiz.toml");
     let instance_packwiz_settings = crate::api::settings::get_from_path(&packwiz_path)?;
@@ -38,13 +42,23 @@ pub fn update_pack_base(instance_id: &str, settings: &PackwizSettings) -> crate:
     let should_temporary_enable_contents = !disabled_contents_paths.is_empty();
 
     if should_temporary_enable_contents {
-        enable_contents(instance_id.to_owned(), disabled_contents_paths.clone())?;
+        enable_contents(instance_id.to_owned(), disabled_contents_paths.clone())
+            .into_result()
+            .map_err(|e| {
+                log(LogLevel::Error, format!("{e:?}"));
+                crate::Error::Custom("Failed to enable contents".to_owned())
+            })?;
     }
 
     host::run_command(command.clone())?;
 
     if should_temporary_enable_contents {
-        disable_contents(instance_id.to_owned(), disabled_contents_paths)?
+        disable_contents(instance_id.to_owned(), disabled_contents_paths)
+            .into_result()
+            .map_err(|e| {
+                log(LogLevel::Error, format!("{e:?}"));
+                crate::Error::Custom("Failed to disable contents".to_owned())
+            })?;
     }
 
     log(
@@ -56,7 +70,12 @@ pub fn update_pack_base(instance_id: &str, settings: &PackwizSettings) -> crate:
 }
 
 fn get_disabled_contents_paths(instance_id: &str) -> crate::Result<Vec<String>> {
-    let contents = list_content(instance_id.to_owned())?;
+    let contents = list_content(instance_id.to_owned())
+        .into_result()
+        .map_err(|e| {
+            log(LogLevel::Error, format!("{e:?}"));
+            crate::Error::Custom("Failed to list contents".to_owned())
+        })?;
 
     let contents_values_iter = contents.iter().map(|content| content.1);
 

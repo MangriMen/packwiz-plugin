@@ -12,7 +12,7 @@ pub fn import(import_instance: PluginImportInstance) -> crate::Result<()> {
         _ => {
             let error_msg = format!("Unsupported importer: {}", import_instance.importer_id);
             log(LogLevel::Error, error_msg.clone());
-            return Err(crate::Error(error_msg));
+            return Err(crate::Error::Custom(error_msg));
         }
     }
 

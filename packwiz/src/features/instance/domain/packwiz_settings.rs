@@ -18,7 +18,7 @@ impl PackwizSettings {
 
     pub fn save_to_path(&self, path: &Path) -> crate::Result<()> {
         let data = toml::to_string(self).map_err(|_| "Failed to serialize pack as TOML")?;
-        let parent_dir = path.parent().ok_or(crate::Error(format!(
+        let parent_dir = path.parent().ok_or(crate::Error::Custom(format!(
             "Failed to get parent directory {:?}",
             path
         )))?;

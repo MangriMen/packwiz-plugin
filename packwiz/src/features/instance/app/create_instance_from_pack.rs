@@ -40,26 +40,21 @@ pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::
 
     log(LogLevel::Trace, format!("New instance: {:?}", new_instance));
 
-    let instance_id = instance_create(new_instance);
+    let instance_id = instance_create(new_instance)
+        .into_result()
+        .inspect_err(|e| {
+            log(LogLevel::Error, format!("{e:?}"));
+        })?;
 
-    match instance_id {
-        Ok(instance_id) => {
-            let pack_settings = PackwizSettings {
-                pack_path: pack_path.to_string(),
-                update_on_launch: true,
-            };
-            crate::api::settings::save_to_instance(&instance_id, &pack_settings)?;
-            log(
-                LogLevel::Debug,
-                format!("Pack settings saved: {:?}", pack_settings),
-            );
+    let pack_settings = PackwizSettings {
+        pack_path: pack_path.to_string(),
+        update_on_launch: true,
+    };
+    crate::api::settings::save_to_instance(&instance_id, &pack_settings)?;
+    log(
+        LogLevel::Debug,
+        format!("Pack settings saved: {:?}", pack_settings),
+    );
 
-            Ok(instance_id)
-        }
-        Err(e) => {
-            let error_msg = &e;
-            log(LogLevel::Error, error_msg.clone());
-            Err(crate::Error(error_msg.clone()))
-        }
-    }
+    Ok(instance_id)
 }

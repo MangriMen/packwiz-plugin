@@ -7,8 +7,8 @@ pub fn get_id() -> crate::Result<String> {
     Ok(unsafe { host::get_id() }.expect("Can't get id"))
 }
 
-pub fn run_command(command: CommandDto) -> Result<OutputDto, String> {
-    unsafe { host::run_command(Msgpack(command)) }
+pub fn run_command(command: CommandDto) -> crate::Result<OutputDto> {
+    Ok(unsafe { host::run_command(Msgpack(command)) }
         .expect("Can't run command")
-        .to_result()
+        .into_result()?)
 }

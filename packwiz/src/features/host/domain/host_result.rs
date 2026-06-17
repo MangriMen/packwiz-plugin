@@ -13,11 +13,11 @@ pub enum HostResult<T> {
 }
 
 impl<T> HostResult<T> {
-    /// Convert to a `Result`, mapping `HostError` to its debug representation.
-    pub fn to_result(self) -> Result<T, String> {
+    /// Convert to `Result<T, HostError>`, for use with `?` and `From<HostError> for Error`.
+    pub fn into_result(self) -> Result<T, aether_core_plugin_api::v0::HostError> {
         match self {
-            HostResult::Ok(t) => Ok(t),
-            HostResult::Err(e) => Err(format!("{e:?}")),
+            HostResult::Ok(val) => Ok(val),
+            HostResult::Err(e) => Err(e),
         }
     }
 }

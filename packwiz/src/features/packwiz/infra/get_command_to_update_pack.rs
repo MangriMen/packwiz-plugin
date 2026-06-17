@@ -6,6 +6,8 @@ use crate::features::{
     java,
 };
 
+use crate::features::host::HostResult;
+
 use super::constants::*;
 
 pub fn get_command_to_update_pack(
@@ -16,9 +18,9 @@ pub fn get_command_to_update_pack(
     log(LogLevel::Debug, "Try to get java path".to_string());
 
     let java = match java::get_java(JAVA_VERSION) {
-        Ok(java) => Ok(java),
-        Err(_) => java::install_java(JAVA_VERSION),
-    }?;
+        HostResult::Ok(java) => java,
+        HostResult::Err(_) => java::install_java(JAVA_VERSION).into_result()?,
+    };
 
     log(LogLevel::Debug, format!("Java path: {}", &java.path));
 
@@ -29,7 +31,7 @@ pub fn get_command_to_update_pack(
         cache_dir.join(PACKWIZ_INSTALLER_BOOTSTRAP_FILE_NAME),
     );
 
-    let instance_folder = instance::instance_get_dir(instance_id.to_string())?;
+    let instance_folder = instance::instance_get_dir(instance_id.to_string()).into_result()?;
     let instance_folder = Path::new(&instance_folder);
 
     let _packwiz_installer_instance_path = instance_folder.join(PACKWIZ_INSTALLER_FILE_NAME);

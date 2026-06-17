@@ -11,7 +11,7 @@ pub fn extract_mod_loader(version: &PackVersions) -> crate::Result<(ModLoaderDto
     ) {
         (Some(fabric), _, _, _) => Ok((ModLoaderDto::Fabric, Some(fabric.clone()))),
         (_, Some(forge), _, _) => Ok((ModLoaderDto::Forge, Some(forge.clone()))),
-        (_, _, Some(liteloader), _) => Err(crate::Error(format!(
+        (_, _, Some(liteloader), _) => Err(crate::Error::Custom(format!(
             "Unsupported mod loader: \"liteloader: {}\"",
             liteloader
         ))),
