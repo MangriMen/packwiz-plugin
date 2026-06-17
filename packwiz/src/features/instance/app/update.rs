@@ -4,9 +4,9 @@ use aether_core_plugin_api::v0::CommandDto;
 
 use crate::features::{
     host::{self, log, LogLevel},
+    instance::infra::CommandDtoExt,
     instance::{
-        disable_contents, enable_contents, instance_plugin_get_dir, list_content, CommandDtoExt,
-        PackwizSettings,
+        disable_contents, enable_contents, instance_plugin_get_dir, list_content, PackwizSettings,
     },
     packwiz,
 };

@@ -1,4 +1,6 @@
-use aether_core_plugin_api::v0::{LoaderVersionPreferenceDto, NewInstanceDto, PackInfoDto};
+use aether_core_plugin_api::v0::{
+    LoaderVersionPreferenceDto, NewInstanceDto, PackInfoDto, ProviderIdDto,
+};
 
 use crate::features::{
     host::{self, log, LogLevel},
@@ -27,9 +29,12 @@ pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::
         icon_path: None,
         skip_install_instance: None,
         pack_info: Some(PackInfoDto {
-            plugin_id,
+            provider_id: ProviderIdDto {
+                plugin_id,
+                capability_id: "packwiz".to_owned(),
+            },
             modpack_id: "packwiz".to_owned(),
-            version: pack.version.clone(),
+            version_id: pack.version.clone(),
         }),
     };
 
@@ -52,9 +57,9 @@ pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::
             Ok(instance_id)
         }
         Err(e) => {
-            let error_msg = e.message;
+            let error_msg = &e;
             log(LogLevel::Error, error_msg.clone());
-            Err(crate::Error(error_msg))
+            Err(crate::Error(error_msg.clone()))
         }
     }
 }

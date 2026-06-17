@@ -1,34 +1,23 @@
-use extism_pdk::{encoding, FromBytes, Msgpack};
+use extism_pdk::FromBytes;
+use extism_pdk::Msgpack;
 use serde::{Deserialize, Serialize};
-use serr::SerializedError;
 
+/// Mirror of the host's `HostResult` — must match `#[serde(tag = "status", content = "data")]`
+/// and Msgpack encoding used by `to_extism_res` in aether-core.
 #[derive(Serialize, Deserialize, FromBytes, Debug)]
 #[encoding(Msgpack)]
+#[serde(tag = "status", content = "data", rename_all = "camelCase")]
 pub enum HostResult<T> {
     Ok(T),
-    Err(SerializedError),
-}
-
-// impl<T> From<crate::Result<T>> for HostResult<T> {
-//     fn from(res: crate::Result<T>) -> Self {
-//         match res {
-//             Ok(v) => Self::Ok(v),
-//             Err(e) => Self::Err(e.raw.to_serialized()),
-//         }
-//     }
-// }
-
-impl<T> From<HostResult<T>> for Result<T, SerializedError> {
-    fn from(value: HostResult<T>) -> Self {
-        match value {
-            HostResult::Ok(t) => Ok(t),
-            HostResult::Err(e) => Err(e),
-        }
-    }
+    Err(aether_core_plugin_api::v0::HostError),
 }
 
 impl<T> HostResult<T> {
-    pub fn to_result(self) -> Result<T, SerializedError> {
-        self.into()
+    /// Convert to a `Result`, mapping `HostError` to its debug representation.
+    pub fn to_result(self) -> Result<T, String> {
+        match self {
+            HostResult::Ok(t) => Ok(t),
+            HostResult::Err(e) => Err(format!("{e:?}")),
+        }
     }
 }
