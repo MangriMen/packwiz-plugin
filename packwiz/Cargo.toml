@@ -29,4 +29,4 @@ serr = { git = 'https://github.com/MangriMen/serr.git', version = "0.2.0", featu
 ] }
 path-slash = "0.2.1"
 
-aether-core-plugin-api = { path = "../../aether/packages/core/aether-core-plugin-api" }
+aether-core-plugin-api = { git = "https://github.com/MangriMen/aether.git", version = "0.2.0" }
