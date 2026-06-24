@@ -42,28 +42,17 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: packwiz-plugin
 
-      - name: Generate release notes
-        run: |
-          echo "## Packwiz Plugin ${{ github.ref_name }}" > release-notes.md
-          echo "" >> release-notes.md
-          echo "### What's Changed" >> release-notes.md
-          git log --oneline --no-decorate "$(git tag --sort=-creatordate | head -2 | tail -1)..HEAD" 2>/dev/null \
-            | sed 's/^/- /' >> release-notes.md || true
-
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "Packwiz Plugin ${{ github.ref_name }}"
-          body_path: release-notes.md
+          name: ${{ github.ref_name }}
           draft: true
           prerelease: false
           files: |
