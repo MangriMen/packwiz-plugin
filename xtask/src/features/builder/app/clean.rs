@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::features::builder::{get_target_dir, BuildProfile, TARGET};
+use crate::features::builder::{BuildProfile, TARGET, get_target_dir};
 
 pub fn clean(profile: BuildProfile) {
     let target_dir = get_target_dir(TARGET, profile);

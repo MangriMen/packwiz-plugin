@@ -3,8 +3,8 @@ use aether_core_plugin_api::v0::{
 };
 
 use crate::features::{
-    host::{self, log, LogLevel},
-    instance::{extract_mod_loader, instance_create, PackwizSettings},
+    host::{self, LogLevel, log},
+    instance::{PackwizSettings, extract_mod_loader, instance_create},
     packwiz::PackwizPack,
 };
 

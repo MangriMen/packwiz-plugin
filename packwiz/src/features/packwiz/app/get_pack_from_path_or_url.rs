@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use extism_pdk::{http, HttpRequest};
+use extism_pdk::{HttpRequest, http};
 use path_slash::PathBufExt;
 
 use crate::features::packwiz::PackwizPack;

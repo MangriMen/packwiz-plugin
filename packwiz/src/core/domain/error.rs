@@ -1,5 +1,4 @@
 use aether_core_plugin_api::v0::HostError;
-use serr::SerializedError;
 
 #[derive(Debug)]
 pub enum Error {
@@ -28,12 +27,6 @@ impl From<&str> for Error {
 impl From<String> for Error {
     fn from(value: String) -> Self {
         Error::Custom(value)
-    }
-}
-
-impl From<SerializedError> for Error {
-    fn from(value: SerializedError) -> Self {
-        Error::Custom(value.message)
     }
 }
 

@@ -1,7 +1,7 @@
 use std::{path::Path, process::Command};
 
 use crate::features::{
-    host::{log, LogLevel},
+    host::{LogLevel, log},
     instance::{self, PackwizSettings},
     java,
 };
