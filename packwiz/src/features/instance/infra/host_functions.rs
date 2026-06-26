@@ -2,7 +2,7 @@ pub mod host {
     use std::collections::HashMap;
 
     use aether_core_plugin_api::v0::{ContentFileDto, NewInstanceDto};
-    use extism_pdk::{host_fn, Msgpack};
+    use extism_pdk::{Msgpack, host_fn};
 
     use crate::features::host::HostResult;
 

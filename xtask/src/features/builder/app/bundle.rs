@@ -1,7 +1,7 @@
 use std::fs::{self};
 use std::path::{Path, PathBuf};
 
-use crate::features::builder::{build, generate_plugin_manifest, BuildProfile};
+use crate::features::builder::{BuildProfile, build, generate_plugin_manifest};
 use crate::features::cargo::CargoMetadata;
 
 pub fn bundle(

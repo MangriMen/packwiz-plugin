@@ -1,4 +1,4 @@
-use extism_pdk::{plugin_fn, FnResult};
+use extism_pdk::{FnResult, plugin_fn};
 
 use crate::features::events::PluginEvent;
 

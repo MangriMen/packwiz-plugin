@@ -3,7 +3,7 @@ use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 use zip::write::{ExtendedFileOptions, FileOptions};
 
-use crate::features::builder::{bundle, get_package_dir, BuildProfile, TARGET};
+use crate::features::builder::{BuildProfile, TARGET, bundle, get_package_dir};
 use crate::features::cargo::CargoMetadata;
 
 pub fn package(

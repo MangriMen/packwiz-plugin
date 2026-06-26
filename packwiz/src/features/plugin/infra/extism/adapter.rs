@@ -1,6 +1,6 @@
-use extism_pdk::{plugin_fn, FnResult};
+use extism_pdk::{FnResult, plugin_fn};
 
-use crate::features::host::{log, LogLevel};
+use crate::features::host::{LogLevel, log};
 
 #[plugin_fn]
 pub fn on_load() -> FnResult<()> {

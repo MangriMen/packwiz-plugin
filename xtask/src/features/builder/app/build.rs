@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process::Command};
 
-use crate::features::builder::{get_target_dir, BuildProfile, TARGET};
+use crate::features::builder::{BuildProfile, TARGET, get_target_dir};
 
 pub fn build(working_dir: &str, profile: BuildProfile) -> Result<PathBuf, String> {
     let profile_arg = format!("--{}", profile.as_str());

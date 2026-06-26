@@ -6,7 +6,7 @@ use std::{
 use extism_pdk::HttpRequest;
 
 use crate::features::{
-    host::{log, LogLevel},
+    host::{LogLevel, log},
     instance,
 };
 
@@ -28,7 +28,7 @@ pub fn download_redistributable(url: &str, path: &Path, name: &str) -> crate::Re
 }
 
 pub fn ensure_download_all_redistributable() -> crate::Result<()> {
-    for (key, path) in REDISTRIBUTABLE_FILES.into_iter() {
+    for (key, path) in REDISTRIBUTABLE_FILES.iter() {
         let path_to_redistributable = PathBuf::from("/cache").join(path);
 
         if path_to_redistributable.exists() {
@@ -50,7 +50,7 @@ pub fn ensure_download_all_redistributable() -> crate::Result<()> {
             ),
         );
 
-        if let Some(url) = REDISTRIBUTABLE_LINKS.get(key) {
+        if let Some(url) = get_redistributable_link(key) {
             if let Err(e) = download_redistributable(url, &path_to_redistributable, key) {
                 log(LogLevel::Debug, e.to_string());
                 continue;

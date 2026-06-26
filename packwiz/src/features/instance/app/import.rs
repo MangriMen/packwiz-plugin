@@ -1,5 +1,5 @@
 use crate::features::{
-    host::{log, LogLevel},
+    host::{LogLevel, log},
     instance::PluginImportInstance,
     packwiz::{self},
 };

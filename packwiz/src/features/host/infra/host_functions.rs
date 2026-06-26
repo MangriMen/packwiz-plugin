@@ -1,6 +1,6 @@
 pub mod host {
     use aether_core_plugin_api::v0::{CommandDto, OutputDto};
-    use extism_pdk::{host_fn, Msgpack};
+    use extism_pdk::{Msgpack, host_fn};
 
     use crate::features::host::HostResult;
 
