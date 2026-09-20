@@ -31,7 +31,7 @@ pub fn generate_plugin_manifest(meta: &CargoMetadata) -> PluginManifest {
         },
         load: LoadConfig::Extism {
             file: PathBuf::from(format!("{}.wasm", meta.package.name)),
-            memory_limit: None,
+            memory_limit: meta.package.metadata.memory_limit,
         },
         api: ApiConfig {
             version: meta.package.metadata.api_version.clone(),

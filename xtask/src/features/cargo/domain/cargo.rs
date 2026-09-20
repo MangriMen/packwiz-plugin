@@ -23,4 +23,5 @@ pub struct PackageMetadata {
     pub api_version: semver::VersionReq,
     pub allowed_hosts: Option<Vec<String>>,
     pub allowed_paths: Option<Vec<PathMapping>>,
+    pub memory_limit: Option<usize>,
 }
