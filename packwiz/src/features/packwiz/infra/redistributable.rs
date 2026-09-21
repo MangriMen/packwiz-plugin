@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use aether_core_plugin_api::v0::WriteInstanceFileParamsDto;
 use extism_pdk::HttpRequest;
 
 use crate::features::{
@@ -64,16 +65,39 @@ pub fn ensure_download_all_redistributable() -> crate::Result<()> {
     Ok(())
 }
 
+/// Put a cached redistributable into the instance directory.
+///
+/// The bytes go through `write_instance_file` (T-1.3), not `std::fs`: the instance directory
+/// belongs to the host, which resolves `instance_id` + relative path itself and enforces the
+/// path rules and the 64 MiB cap (F-25). `packwiz-installer.jar` is well under that cap;
+/// anything large would have to go through `download_to_cache` (T-1.2) instead.
+///
+/// The "already there" check stays an ordinary read of the mounted instance directory — only
+/// writes move to the host function (T-1.5.B makes that mount `ro:`, reads keep working).
+///
+/// Note (F-24): the host does not register this file in `PackStorage`, exactly as the previous
+/// `std::fs::copy` did not. `packwiz-installer.jar` sits in the instance root, outside the
+/// content folders the instance watcher tracks, so it stays invisible to the pack — which is
+/// what we want for a tool jar.
 pub fn ensure_resource_in_instance_directory(
-    instance_folder: &Path,
+    instance_id: &str,
     resource_name: &str,
 ) -> crate::Result<()> {
-    let file = instance_folder.join(resource_name);
+    let instance_folder = instance::instance_get_dir(instance_id.to_string()).into_result()?;
 
-    if !file.exists() {
-        std::fs::copy(Path::new("/cache").join(resource_name), &file)
-            .map_err(|_| "Failed to copy packwiz installer")?;
+    if Path::new(&instance_folder).join(resource_name).exists() {
+        return Ok(());
     }
+
+    let bytes = std::fs::read(Path::new("/cache").join(resource_name))
+        .map_err(|_| format!("Failed to read redistributable {} from cache", resource_name))?;
+
+    instance::write_instance_file(WriteInstanceFileParamsDto {
+        instance_id: instance_id.to_string(),
+        relative_path: resource_name.to_string(),
+        bytes,
+    })
+    .into_result()?;
 
     Ok(())
 }
@@ -81,11 +105,7 @@ pub fn ensure_resource_in_instance_directory(
 pub fn preload_resources(instance_id: &str) -> crate::Result<()> {
     ensure_download_all_redistributable()?;
 
-    let instance_plugin_folder =
-        instance::instance_get_dir(instance_id.to_string()).into_result()?;
-    let instance_folder = Path::new(&instance_plugin_folder);
-
-    ensure_resource_in_instance_directory(instance_folder, PACKWIZ_INSTALLER_FILE_NAME)?;
+    ensure_resource_in_instance_directory(instance_id, PACKWIZ_INSTALLER_FILE_NAME)?;
 
     Ok(())
 }
