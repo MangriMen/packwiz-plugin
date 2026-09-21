@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use aether_core_plugin_api::v0::{ContentFileDto, NewInstanceDto};
+use aether_core_plugin_api::v0::{ContentFileDto, NewInstanceDto, WriteInstanceFileParamsDto};
 use extism_pdk::Msgpack;
 
 use crate::features::host::HostResult;
@@ -30,4 +30,12 @@ pub fn enable_contents(instance_id: String, content_paths: Vec<String>) -> HostR
 pub fn disable_contents(instance_id: String, content_paths: Vec<String>) -> HostResult<()> {
     unsafe { host::disable_contents(instance_id, Msgpack(content_paths)) }
         .expect("Can't disable contents")
+}
+
+/// Write a file into an instance directory through the host (T-1.3).
+///
+/// `params.relative_path` is relative to the instance root and `/`-separated; the plugin never
+/// touches the instance directory through `std::fs` itself.
+pub fn write_instance_file(params: WriteInstanceFileParamsDto) -> HostResult<()> {
+    unsafe { host::write_instance_file(Msgpack(params)) }.expect("Can't write instance file")
 }
