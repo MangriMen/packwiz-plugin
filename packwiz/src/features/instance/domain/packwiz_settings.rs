@@ -16,16 +16,12 @@ impl PackwizSettings {
             .map_err(|e| format!("Failed to parse pack as TOML. {}", e))?)
     }
 
-    pub fn save_to_path(&self, path: &Path) -> crate::Result<()> {
-        let data = toml::to_string(self).map_err(|_| "Failed to serialize pack as TOML")?;
-        let parent_dir = path.parent().ok_or(crate::Error::Custom(format!(
-            "Failed to get parent directory {:?}",
-            path
-        )))?;
-
-        std::fs::create_dir_all(parent_dir)
-            .map_err(|e| format!("Failed to create directory. {}", e))?;
-        std::fs::write(path, data).map_err(|e| format!("Failed to write packwiz.toml. {}", e))?;
-        Ok(())
+    /// Serialize for `write_instance_file` (T-1.5.A.1).
+    ///
+    /// Writing is deliberately not done here: this plugin's per-instance directory sits inside
+    /// the instance (`.metadata/plugins/<plugin_id>/`), so it belongs to the host — see F-30,
+    /// and T-1.5.B mounts the instances directory read-only.
+    pub fn to_toml(&self) -> crate::Result<String> {
+        Ok(toml::to_string(self).map_err(|_| "Failed to serialize pack as TOML")?)
     }
 }
