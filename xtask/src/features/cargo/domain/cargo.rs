@@ -24,5 +24,6 @@ pub struct PackageMetadata {
     pub allowed_hosts: Option<Vec<String>>,
     pub allowed_paths: Option<Vec<PathMapping>>,
     pub memory_limit: Option<usize>,
-    pub host_functions: Option<Vec<String>>,
+    /// Required: the launcher refuses a manifest without `api.hostFunctions` (aether T-1.4.A).
+    pub host_functions: Vec<String>,
 }

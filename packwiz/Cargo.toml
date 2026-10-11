@@ -11,7 +11,8 @@ name = "Packwiz"
 api_version = "0.2.0"
 allowed_hosts = ["github.com", "release-assets.githubusercontent.com"]
 # Written to `api.hostFunctions` in the manifest: the core links exactly these into the plugin
-# (aether T-1.4). Must cover every function the `#[host_fn]` blocks under `src/` import.
+# (aether T-1.4). Required; `cargo xtask package` fails if the built wasm imports one missing
+# here and warns about one listed but never imported (aether T-1.4.B).
 host_functions = [
     "log",
     "get_id",

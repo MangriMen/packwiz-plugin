@@ -1,7 +1,9 @@
 use std::fs::{self};
 use std::path::{Path, PathBuf};
 
-use crate::features::builder::{BuildProfile, build, generate_plugin_manifest};
+use crate::features::builder::{
+    BuildProfile, build, check_host_functions, generate_plugin_manifest,
+};
 use crate::features::cargo::CargoMetadata;
 
 pub fn bundle(
@@ -17,7 +19,13 @@ pub fn bundle(
 
     let wasm_src = target_dir.join(plugin_name).with_extension("wasm");
     let wasm_dst = bundle_dir.join(wasm_src.file_name().unwrap());
-    fs::copy(&wasm_src, wasm_dst).unwrap();
+    fs::copy(&wasm_src, &wasm_dst).unwrap();
+
+    // Checked on the copy that ships, against the list that goes into the manifest.
+    if let Err(err) = check_host_functions(&wasm_dst, &metadata.package.metadata.host_functions) {
+        eprintln!("error: {err}");
+        std::process::exit(1);
+    }
 
     let plugin_manifest = generate_plugin_manifest(metadata);
     let manifest_dst = bundle_dir.join("manifest.json");

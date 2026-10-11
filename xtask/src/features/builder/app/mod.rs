@@ -1,5 +1,6 @@
 pub mod build;
 pub mod bundle;
+pub mod check_host_functions;
 pub mod clean;
 pub mod constants;
 pub mod generate_plugin_manifest;
@@ -9,6 +10,7 @@ pub mod package;
 
 pub use build::*;
 pub use bundle::*;
+pub use check_host_functions::*;
 pub use clean::*;
 pub use constants::*;
 pub use generate_plugin_manifest::*;
