@@ -57,4 +57,8 @@ pub struct ApiConfig {
     pub version: semver::VersionReq,
     #[serde(default)]
     pub features: Vec<String>,
+    /// Host functions the plugin imports; the core links only these. Left out of the manifest
+    /// when `[package.metadata]` has no `host_functions`, which makes the core link all of them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub host_functions: Option<Vec<String>>,
 }

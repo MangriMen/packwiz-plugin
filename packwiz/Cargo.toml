@@ -10,6 +10,23 @@ license = "MIT"
 name = "Packwiz"
 api_version = "0.2.0"
 allowed_hosts = ["github.com", "release-assets.githubusercontent.com"]
+# Written to `api.hostFunctions` in the manifest: the core links exactly these into the plugin
+# (aether T-1.4). Must cover every function the `#[host_fn]` blocks under `src/` import.
+host_functions = [
+    "log",
+    "get_id",
+    "run_command",
+    "http_get",
+    "get_java",
+    "install_java",
+    "instance_get_dir",
+    "instance_plugin_get_dir",
+    "instance_create",
+    "list_content",
+    "enable_contents",
+    "disable_contents",
+    "write_instance_file",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
