@@ -38,7 +38,6 @@ pub type PathMapping = (String, PathBuf); // (path on disk, plugin path)
 #[serde(rename_all = "snake_case")]
 pub enum LoadConfigType {
     Extism,
-    Native,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
@@ -50,8 +49,6 @@ pub enum LoadConfig {
         #[serde(default)]
         memory_limit: Option<usize>,
     },
-    #[serde(rename_all = "camelCase")]
-    Native { lib_path: PathBuf },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
