@@ -36,6 +36,7 @@ pub fn generate_plugin_manifest(meta: &CargoMetadata) -> PluginManifest {
         api: ApiConfig {
             version: meta.package.metadata.api_version.clone(),
             features: Vec::default(),
+            host_functions: meta.package.metadata.host_functions.clone(),
         },
     }
 }
