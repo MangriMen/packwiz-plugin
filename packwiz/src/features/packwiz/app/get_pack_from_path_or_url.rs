@@ -1,19 +1,16 @@
 use std::path::PathBuf;
 
-use extism_pdk::{HttpRequest, http};
 use path_slash::PathBufExt;
 
-use crate::features::packwiz::PackwizPack;
+use crate::features::{host::http_get_bytes, packwiz::PackwizPack};
 
 pub fn get_pack_from_path_or_url(path_or_url: &str) -> crate::Result<PackwizPack> {
     // Heuristic: if the string contains "://" it's a URL, otherwise it's a local path.
     // We cannot use Url::parse() because Windows drive letters (e.g. "D:\")
     // are incorrectly parsed as URL schemes inside WASM.
     let data: Vec<u8> = if path_or_url.contains("://") {
-        let response = http::request::<()>(&HttpRequest::new(path_or_url).with_method("GET"), None)
-            .map_err(|_| format!("Failed to download pack from {path_or_url}"))?;
-
-        response.body().to_vec()
+        http_get_bytes(path_or_url)
+            .map_err(|e| format!("Failed to download pack from {path_or_url}: {e}"))?
     } else {
         let path = PathBuf::from(path_or_url).to_slash_lossy().to_string();
 
