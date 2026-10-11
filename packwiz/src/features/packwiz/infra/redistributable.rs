@@ -1,30 +1,19 @@
-use std::{
-    collections::BTreeMap,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use aether_core_plugin_api::v0::WriteInstanceFileParamsDto;
-use extism_pdk::HttpRequest;
 
 use crate::features::{
-    host::{LogLevel, log},
+    host::{LogLevel, http_get_bytes, log},
     instance,
 };
 
 use super::constants::*;
 
 pub fn download_redistributable(url: &str, path: &Path, name: &str) -> crate::Result<()> {
-    let res = extism_pdk::http::request::<()>(
-        &HttpRequest {
-            url: url.to_string(),
-            headers: BTreeMap::default(),
-            method: Some("GET".to_string()),
-        },
-        None,
-    )
-    .map_err(|_| format!("Failed to download redistributable {}", name))?;
+    let body = http_get_bytes(url)
+        .map_err(|e| format!("Failed to download redistributable {}: {e}", name))?;
 
-    Ok(std::fs::write(path, res.body())
+    Ok(std::fs::write(path, body)
         .map_err(|_| format!("Failed to save redistributable {} to {:?}", name, &path))?)
 }
 
@@ -89,8 +78,12 @@ pub fn ensure_resource_in_instance_directory(
         return Ok(());
     }
 
-    let bytes = std::fs::read(Path::new("/cache").join(resource_name))
-        .map_err(|_| format!("Failed to read redistributable {} from cache", resource_name))?;
+    let bytes = std::fs::read(Path::new("/cache").join(resource_name)).map_err(|_| {
+        format!(
+            "Failed to read redistributable {} from cache",
+            resource_name
+        )
+    })?;
 
     instance::write_instance_file(WriteInstanceFileParamsDto {
         instance_id: instance_id.to_string(),

@@ -9,7 +9,7 @@ license = "MIT"
 [package.metadata]
 name = "Packwiz"
 api_version = "0.2.0"
-allowed_hosts = ["github.com", "objects.githubusercontent.com"]
+allowed_hosts = ["github.com", "release-assets.githubusercontent.com"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
