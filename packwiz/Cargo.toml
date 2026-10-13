@@ -18,6 +18,7 @@ host_functions = [
     "get_id",
     "run_command",
     "http_get",
+    "download_to_cache",
     "get_java",
     "install_java",
     "instance_get_dir",

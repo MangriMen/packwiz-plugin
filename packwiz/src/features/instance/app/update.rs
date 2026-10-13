@@ -12,7 +12,7 @@ use crate::features::{
 };
 
 pub fn update(instance_id: String) -> crate::Result<()> {
-    packwiz::preload_resources(&instance_id)?;
+    let redistributables = packwiz::preload_resources(&instance_id)?;
 
     let instance_plugin_folder = instance_plugin_get_dir(instance_id.clone())
         .into_result()
@@ -24,18 +24,26 @@ pub fn update(instance_id: String) -> crate::Result<()> {
     let packwiz_path = Path::new(&instance_plugin_folder).join("packwiz.toml");
     let instance_packwiz_settings = crate::api::settings::get_from_path(&packwiz_path)?;
 
-    update_pack_base(&instance_id, &instance_packwiz_settings)?;
+    update_pack_base(
+        &instance_id,
+        &instance_packwiz_settings,
+        &redistributables.bootstrap,
+    )?;
 
     Ok(())
 }
 
-pub fn update_pack_base(instance_id: &str, settings: &PackwizSettings) -> crate::Result<()> {
+pub fn update_pack_base(
+    instance_id: &str,
+    settings: &PackwizSettings,
+    bootstrap: &Path,
+) -> crate::Result<()> {
     log(
         LogLevel::Info,
         format!("Updating pack in instance {}", &instance_id),
     );
 
-    let command = packwiz::get_command_to_update_pack(instance_id, settings)
+    let command = packwiz::get_command_to_update_pack(instance_id, settings, bootstrap)
         .map(|command| CommandDto::from_command(&command))?;
 
     let disabled_contents_paths = get_disabled_contents_paths(instance_id)?;
