@@ -24,19 +24,12 @@ jobs:
       - name: Build plugin package
         run: cargo xtask package
 
-      - name: Prepare release assets
-        run: |
-          cp target/wasm32-wasip1/release/bundle/manifest.json target/wasm32-wasip1/release/package/packwiz.manifest.json
-          cp target/wasm32-wasip1/release/bundle/capabilities.json target/wasm32-wasip1/release/package/packwiz.capabilities.json
-
       - name: Upload package as artifact
         uses: actions/upload-artifact@v4
         with:
           name: packwiz-plugin
           path: |
             target/wasm32-wasip1/release/package/packwiz.zip
-            target/wasm32-wasip1/release/package/packwiz.manifest.json
-            target/wasm32-wasip1/release/package/packwiz.capabilities.json
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -61,5 +54,3 @@ jobs:
           prerelease: false
           files: |
             packwiz.zip
-            packwiz.manifest.json
-            packwiz.capabilities.json
