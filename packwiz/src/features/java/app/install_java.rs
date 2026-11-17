@@ -1,11 +1,6 @@
-use aether_core_plugin_pdk::{
-    Wire,
-    api::v0::{JavaDto, JavaVersionParamsDto},
-};
-
-use crate::features::java::host;
+use aether_core_plugin_pdk::{self as pdk, api::v0::JavaDto};
 
 /// Have the launcher install the Java of `version`.
 pub fn install_java(version: u32) -> crate::Result<JavaDto> {
-    unsafe { host::install_java(Wire(JavaVersionParamsDto { version })) }?.into_result()
+    pdk::host::install_java(version)
 }
