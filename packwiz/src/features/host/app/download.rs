@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 
-use aether_core_plugin_api::v0::{DownloadToCacheParamsDto, FileHashDto};
-use extism_pdk::Msgpack;
+use aether_core_plugin_pdk::{
+    Wire,
+    api::v0::{DownloadToCacheParamsDto, FileHashDto},
+};
 
 use crate::features::host::host;
 
@@ -11,9 +13,9 @@ use crate::features::host::host;
 /// passes through the plugin's memory, so this is the way to fetch anything of size.
 pub fn download_to_cache_sha256(url: &str, sha256: &str) -> crate::Result<PathBuf> {
     let cached = unsafe {
-        host::download_to_cache(Msgpack(DownloadToCacheParamsDto {
+        host::download_to_cache(Wire(DownloadToCacheParamsDto {
             url: url.to_string(),
-            hash: FileHashDto::Sha256(sha256.to_string()),
+            hash: FileHashDto::sha256(sha256),
         }))
     }?
     .into_result()?;

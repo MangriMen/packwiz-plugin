@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use aether_core_plugin_api::v0::HttpRequestDto;
-use extism_pdk::Msgpack;
+use aether_core_plugin_pdk::{Wire, api::v0::HttpRequestDto};
 
 use crate::features::host::host;
 
@@ -11,7 +10,7 @@ use crate::features::host::host;
 /// error here: a 404 page must never be parsed as a pack or saved as a jar.
 pub fn http_get_bytes(url: &str) -> crate::Result<Vec<u8>> {
     let response = unsafe {
-        host::http_get(Msgpack(HttpRequestDto {
+        host::http_get(Wire(HttpRequestDto {
             url: url.to_string(),
             headers: HashMap::new(),
         }))

@@ -1,10 +1,13 @@
 use std::path::{Path, PathBuf};
 
-use aether_core_plugin_api::v0::WriteInstanceFileParamsDto;
+use aether_core_plugin_pdk::api::v0::WriteInstanceFileParamsDto;
 
-use crate::features::{
-    host::{LogLevel, download_to_cache_sha256, log},
-    instance,
+use crate::{
+    ResultExt,
+    features::{
+        host::{LogLevel, download_to_cache_sha256, log},
+        instance,
+    },
 };
 
 use super::constants::*;
@@ -26,13 +29,10 @@ fn ensure_redistributable(redistributable: &Redistributable) -> crate::Result<Pa
         ),
     );
 
-    download_to_cache_sha256(redistributable.url, redistributable.sha256).map_err(|e| {
-        format!(
-            "Failed to download redistributable {}: {e}",
-            redistributable.name
-        )
-        .into()
-    })
+    download_to_cache_sha256(redistributable.url, redistributable.sha256).context(format!(
+        "Failed to download redistributable {}",
+        redistributable.name
+    ))
 }
 
 pub fn ensure_download_all_redistributable() -> crate::Result<Redistributables> {
@@ -61,7 +61,7 @@ pub fn ensure_resource_in_instance_directory(
     resource_name: &str,
     cached: &Path,
 ) -> crate::Result<()> {
-    let instance_folder = instance::instance_get_dir(instance_id.to_string()).into_result()?;
+    let instance_folder = instance::instance_get_dir(instance_id)?;
 
     let bytes = std::fs::read(cached).map_err(|_| {
         format!(
@@ -80,9 +80,6 @@ pub fn ensure_resource_in_instance_directory(
         relative_path: resource_name.to_string(),
         bytes,
     })
-    .into_result()?;
-
-    Ok(())
 }
 
 pub fn preload_resources(instance_id: &str) -> crate::Result<Redistributables> {

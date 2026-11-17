@@ -9,8 +9,8 @@ use crate::features::instance::{instance_get_dir, instance_plugin_get_dir};
 /// relative form is the second with the first stripped off. Computed rather than hardcoded:
 /// neither this plugin's id nor the core's layout of `.metadata` belongs in the plugin.
 pub fn instance_plugin_relative_path(instance_id: &str, file_name: &str) -> crate::Result<String> {
-    let instance_dir = instance_get_dir(instance_id.to_string()).into_result()?;
-    let plugin_dir = instance_plugin_get_dir(instance_id.to_string()).into_result()?;
+    let instance_dir = instance_get_dir(instance_id)?;
+    let plugin_dir = instance_plugin_get_dir(instance_id)?;
 
     // `starts_with('/')` and not just `strip_prefix`: without it an instance `a` would look like
     // a prefix of an instance `ab`, and the relative path would silently point elsewhere.
@@ -20,9 +20,7 @@ pub fn instance_plugin_relative_path(instance_id: &str, file_name: &str) -> crat
         .map(|rest| rest.trim_start_matches('/'))
         .filter(|rest| !rest.is_empty())
         .ok_or_else(|| {
-            crate::Error::Custom(format!(
-                "Plugin directory {plugin_dir} is not inside instance directory {instance_dir}"
-            ))
+            format!("Plugin directory {plugin_dir} is not inside instance directory {instance_dir}")
         })?;
 
     Ok(format!("{relative}/{file_name}"))

@@ -54,9 +54,8 @@ pub enum LoadConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ApiConfig {
+    /// A SemVer requirement the launcher checks against the plugin API version it implements.
     pub version: semver::VersionReq,
-    #[serde(default)]
-    pub features: Vec<String>,
     /// Host functions the plugin imports; the core links only these.
     pub host_functions: Vec<String>,
 }

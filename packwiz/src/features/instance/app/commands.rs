@@ -1,41 +1,80 @@
 use std::collections::HashMap;
 
-use aether_core_plugin_api::v0::{ContentFileDto, NewInstanceDto, WriteInstanceFileParamsDto};
-use extism_pdk::Msgpack;
+use aether_core_plugin_pdk::{
+    Wire,
+    api::v0::{
+        ChangeContentsParamsDto, ContentFileDto, InstanceIdParamsDto, NewInstanceDto,
+        WriteInstanceFileParamsDto,
+    },
+};
 
-use crate::features::host::HostResult;
 use crate::features::instance::infra::host;
 
-pub fn instance_get_dir(instance_id: String) -> HostResult<String> {
-    unsafe { host::instance_get_dir(instance_id) }.expect("Can't get instance directory")
+fn instance_id_params(instance_id: &str) -> Wire<InstanceIdParamsDto> {
+    Wire(InstanceIdParamsDto {
+        instance_id: instance_id.to_owned(),
+    })
 }
 
-pub fn instance_plugin_get_dir(instance_id: String) -> HostResult<String> {
-    unsafe { host::instance_plugin_get_dir(instance_id) }.expect("Can't get instance directory")
+/// The sandbox path of the instance, `/instances/<id>`.
+pub fn instance_get_dir(instance_id: &str) -> crate::Result<String> {
+    Ok(
+        unsafe { host::instance_get_dir(instance_id_params(instance_id)) }?
+            .into_result()?
+            .path,
+    )
 }
 
-pub fn instance_create(new_instance: NewInstanceDto) -> HostResult<String> {
-    unsafe { host::instance_create(Msgpack(new_instance)) }.expect("Can't create instance")
+/// The sandbox path of this plugin's folder in the instance,
+/// `/instances/<id>/.metadata/plugins/<plugin id>`.
+pub fn instance_plugin_get_dir(instance_id: &str) -> crate::Result<String> {
+    Ok(
+        unsafe { host::instance_plugin_get_dir(instance_id_params(instance_id)) }?
+            .into_result()?
+            .path,
+    )
 }
 
-pub fn list_content(instance_id: String) -> HostResult<HashMap<String, ContentFileDto>> {
-    unsafe { host::list_content(instance_id) }.expect("Can't list content")
+/// Create an instance and return its id.
+pub fn instance_create(new_instance: NewInstanceDto) -> crate::Result<String> {
+    Ok(unsafe { host::instance_create(Wire(new_instance)) }?
+        .into_result()?
+        .instance_id)
 }
 
-pub fn enable_contents(instance_id: String, content_paths: Vec<String>) -> HostResult<()> {
-    unsafe { host::enable_contents(instance_id, Msgpack(content_paths)) }
-        .expect("Can't enable contents")
+/// The content files of the instance, by their path in it.
+pub fn list_content(instance_id: &str) -> crate::Result<HashMap<String, ContentFileDto>> {
+    Ok(
+        unsafe { host::list_content(instance_id_params(instance_id)) }?
+            .into_result()?
+            .files,
+    )
 }
 
-pub fn disable_contents(instance_id: String, content_paths: Vec<String>) -> HostResult<()> {
-    unsafe { host::disable_contents(instance_id, Msgpack(content_paths)) }
-        .expect("Can't disable contents")
+pub fn enable_contents(instance_id: &str, paths: Vec<String>) -> crate::Result<()> {
+    unsafe {
+        host::enable_contents(Wire(ChangeContentsParamsDto {
+            instance_id: instance_id.to_owned(),
+            paths,
+        }))
+    }?
+    .into_result()
+}
+
+pub fn disable_contents(instance_id: &str, paths: Vec<String>) -> crate::Result<()> {
+    unsafe {
+        host::disable_contents(Wire(ChangeContentsParamsDto {
+            instance_id: instance_id.to_owned(),
+            paths,
+        }))
+    }?
+    .into_result()
 }
 
 /// Write a file into an instance directory through the host (T-1.3).
 ///
 /// `params.relative_path` is relative to the instance root and `/`-separated; the plugin never
 /// touches the instance directory through `std::fs` itself.
-pub fn write_instance_file(params: WriteInstanceFileParamsDto) -> HostResult<()> {
-    unsafe { host::write_instance_file(Msgpack(params)) }.expect("Can't write instance file")
+pub fn write_instance_file(params: WriteInstanceFileParamsDto) -> crate::Result<()> {
+    unsafe { host::write_instance_file(Wire(params)) }?.into_result()
 }

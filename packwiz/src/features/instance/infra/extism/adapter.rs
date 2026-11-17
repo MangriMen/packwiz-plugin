@@ -1,13 +1,15 @@
+use aether_core_plugin_pdk::{
+    Wire,
+    api::v0::{PluginImportInstanceDto, UpdateInstanceParamsDto},
+};
 use extism_pdk::{FnResult, plugin_fn};
 
-use crate::features::instance::PluginImportInstance;
-
 #[plugin_fn]
-pub fn import(import_instance: PluginImportInstance) -> FnResult<()> {
+pub fn import(Wire(import_instance): Wire<PluginImportInstanceDto>) -> FnResult<()> {
     Ok(crate::api::import(import_instance)?)
 }
 
 #[plugin_fn]
-pub fn update(instance_id: String) -> FnResult<()> {
-    Ok(crate::api::update(instance_id)?)
+pub fn update(Wire(params): Wire<UpdateInstanceParamsDto>) -> FnResult<()> {
+    Ok(crate::api::update(params.instance_id)?)
 }
