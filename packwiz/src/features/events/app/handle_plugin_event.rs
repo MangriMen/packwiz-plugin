@@ -1,8 +1,8 @@
-use crate::features::events::PluginEvent;
+use aether_core_plugin_pdk::api::v0::PluginInternalEventDto;
 
-pub fn handle_plugin_event(event: &PluginEvent) -> crate::Result<()> {
+pub fn handle_plugin_event(event: &PluginInternalEventDto) -> crate::Result<()> {
     match event {
-        PluginEvent::BeforeInstanceLaunch { instance_id } => {
+        PluginInternalEventDto::BeforeInstanceLaunch { instance_id } => {
             let plugin_settings = crate::api::settings::get_from_instance(instance_id)?;
 
             if plugin_settings.update_on_launch {

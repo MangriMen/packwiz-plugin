@@ -1,14 +1,12 @@
-use aether_core_plugin_api::v0::{CommandDto, OutputDto};
-use extism_pdk::Msgpack;
+use aether_core_plugin_pdk::{
+    Wire,
+    api::v0::{CommandDto, OutputDto},
+};
 
 use crate::features::host::host;
 
-pub fn get_id() -> crate::Result<String> {
-    Ok(unsafe { host::get_id() }.expect("Can't get id"))
-}
-
+/// Run `command` through the host and return its output, whatever its exit code: a non-zero exit
+/// is the program's answer, which the caller judges (`OutputDto::success`).
 pub fn run_command(command: CommandDto) -> crate::Result<OutputDto> {
-    Ok(unsafe { host::run_command(Msgpack(command)) }
-        .expect("Can't run command")
-        .into_result()?)
+    unsafe { host::run_command(Wire(command)) }?.into_result()
 }

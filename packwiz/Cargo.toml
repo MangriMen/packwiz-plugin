@@ -8,14 +8,15 @@ license = "MIT"
 
 [package.metadata]
 name = "Packwiz"
-api_version = "0.3.0"
+# Written to `api.version` in the manifest: a SemVer requirement the launcher checks against the
+# plugin API version it implements (`0.5.0` accepts any 0.5.x launcher).
+api_version = "0.5.0"
 allowed_hosts = ["github.com", "release-assets.githubusercontent.com"]
 # Written to `api.hostFunctions` in the manifest: the core links exactly these into the plugin
 # (aether T-1.4). Required; `cargo xtask package` fails if the built wasm imports one missing
 # here and warns about one listed but never imported (aether T-1.4.B).
 host_functions = [
     "log",
-    "get_id",
     "run_command",
     "http_get",
     "download_to_cache",
@@ -35,12 +36,14 @@ host_functions = [
 crate-type = ["cdylib"]
 
 [dependencies]
-extism-convert = "1.30"
-extism-pdk = "1.4"
+extism-pdk = "1.4.1"
 path-slash = "0.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "1.1"
 url = { version = "2.5", default-features = false, features = ["std"] }
 
-aether-core-plugin-api = { git = "https://github.com/MangriMen/aether.git", version = "0.3.0" }
+# The plugin SDK; it re-exports the plugin API (`aether-core-plugin-api`) as
+# `aether_core_plugin_pdk::api`. To build against a local checkout of the launcher instead, swap
+# `git = "https://github.com/MangriMen/aether.git"` for `path = "../../aether/packages/aether-core-plugin-pdk"`.
+aether-core-plugin-pdk = { git = "https://github.com/MangriMen/aether.git", version = "0.2.0" }

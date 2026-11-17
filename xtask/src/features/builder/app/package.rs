@@ -25,7 +25,7 @@ pub fn package(
 
 fn get_files_to_pack(plugin_name: &str) -> Vec<String> {
     [
-        format!("{}.wasm", &plugin_name),
+        format!("{plugin_name}.wasm"),
         "manifest.json".to_owned(),
         "capabilities.json".to_owned(),
         "icon.png".to_owned(),

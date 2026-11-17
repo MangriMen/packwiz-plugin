@@ -1,8 +1,11 @@
-use aether_core_plugin_api::v0::JavaDto;
+use aether_core_plugin_pdk::{
+    Wire,
+    api::v0::{JavaDto, JavaVersionParamsDto},
+};
 
-use crate::features::host::HostResult;
 use crate::features::java::host;
 
-pub fn get_java(version: u32) -> HostResult<JavaDto> {
-    unsafe { host::get_java(version) }.expect("Can't get java")
+/// The Java of `version` the launcher already has.
+pub fn get_java(version: u32) -> crate::Result<JavaDto> {
+    unsafe { host::get_java(Wire(JavaVersionParamsDto { version })) }?.into_result()
 }

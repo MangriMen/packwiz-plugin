@@ -1,15 +1,16 @@
-use aether_core_plugin_api::v0::{
-    LoaderVersionPreferenceDto, NewInstanceDto, PackInfoDto, ProviderIdDto,
+use aether_core_plugin_pdk::{
+    self as pdk,
+    api::v0::{LoaderVersionPreferenceDto, NewInstanceDto, PackInfoDto, ProviderIdDto},
 };
 
 use crate::features::{
-    host::{self, LogLevel, log},
+    host::{LogLevel, log},
     instance::{PackwizSettings, extract_mod_loader, instance_create},
     packwiz::PackwizPack,
 };
 
 pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::Result<String> {
-    let plugin_id = host::get_id()?;
+    let plugin_id = pdk::plugin_id()?;
 
     let (mod_loader, mod_loader_version) = extract_mod_loader(&pack.versions)?;
 
@@ -40,11 +41,9 @@ pub fn create_instance_from_pack(pack: &PackwizPack, pack_path: &str) -> crate::
 
     log(LogLevel::Trace, format!("New instance: {:?}", new_instance));
 
-    let instance_id = instance_create(new_instance)
-        .into_result()
-        .inspect_err(|e| {
-            log(LogLevel::Error, format!("{e:?}"));
-        })?;
+    let instance_id = instance_create(new_instance).inspect_err(|e| {
+        log(LogLevel::Error, format!("{e}"));
+    })?;
 
     let pack_settings = PackwizSettings {
         pack_path: pack_path.to_string(),

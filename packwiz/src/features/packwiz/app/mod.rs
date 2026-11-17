@@ -1,3 +1,3 @@
-mod get_pack_from_path_or_url;
+mod get_pack;
 
-pub use get_pack_from_path_or_url::*;
+pub use get_pack::*;

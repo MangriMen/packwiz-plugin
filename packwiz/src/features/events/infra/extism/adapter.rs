@@ -1,8 +1,7 @@
+use aether_core_plugin_pdk::{Wire, api::v0::PluginInternalEventDto};
 use extism_pdk::{FnResult, plugin_fn};
 
-use crate::features::events::PluginEvent;
-
 #[plugin_fn]
-pub fn handle_event(event: PluginEvent) -> FnResult<()> {
+pub fn handle_event(Wire(event): Wire<PluginInternalEventDto>) -> FnResult<()> {
     Ok(crate::api::handle_plugin_event(&event)?)
 }

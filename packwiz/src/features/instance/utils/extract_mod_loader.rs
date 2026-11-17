@@ -1,4 +1,4 @@
-use aether_core_plugin_api::v0::ModLoaderDto;
+use aether_core_plugin_pdk::api::v0::ModLoaderDto;
 
 use crate::features::packwiz::PackVersions;
 
@@ -11,10 +11,9 @@ pub fn extract_mod_loader(version: &PackVersions) -> crate::Result<(ModLoaderDto
     ) {
         (Some(fabric), _, _, _) => Ok((ModLoaderDto::Fabric, Some(fabric.clone()))),
         (_, Some(forge), _, _) => Ok((ModLoaderDto::Forge, Some(forge.clone()))),
-        (_, _, Some(liteloader), _) => Err(crate::Error::Custom(format!(
-            "Unsupported mod loader: \"liteloader: {}\"",
-            liteloader
-        ))),
+        (_, _, Some(liteloader), _) => {
+            Err(format!("Unsupported mod loader: \"liteloader: {}\"", liteloader).into())
+        }
         (_, _, _, Some(quilt)) => Ok((ModLoaderDto::Quilt, Some(quilt.clone()))),
         (_, _, _, _) => Ok((ModLoaderDto::Vanilla, None)),
     }
