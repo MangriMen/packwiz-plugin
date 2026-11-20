@@ -8,6 +8,7 @@
       "supportedExtensions": [
         "toml"
       ],
+      "pickFolder": true,
       "handler": "import"
     }
   ],
